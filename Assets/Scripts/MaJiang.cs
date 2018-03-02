@@ -141,17 +141,18 @@ public class MaJiang : MonoBehaviour
                 listSingle.Add(newcard);
             }
         }
-        if (pc == null) {
+        if (pc == null)
+        {
             pc = Instantiate(MaJiangComparer.GetInstance());
         }
-       
+
         //对子排序
         listPairs.Sort(pc);
-        listPairs.Reverse();
-       
+        //listPairs.Reverse();
+
         //单牌排序
         listSingle.Sort(pc);
-        listSingle.Reverse();
+        //listSingle.Reverse();
 
         List<Hashtable> resultList = new List<Hashtable>();
         foreach (var item in listPairs)
@@ -166,17 +167,49 @@ public class MaJiang : MonoBehaviour
         //添加编号
         for (int i = 0; i < resultList.Count; i++)
         {
-            if (Convert.ToBoolean(resultList[i]["Pairs"]) && i >= 1 && Convert.ToInt32(resultList[i]["First"]) != Convert.ToInt32(resultList[i - 1]["First"]))
+            //对子比较，当前的与上一副牌比
+            if (Convert.ToBoolean(resultList[i]["Pairs"]) && i >0 && Convert.ToInt32(resultList[i]["First"]) != Convert.ToInt32(resultList[i - 1]["First"]))
             {
                 sort++;
                 resultList[i].Add("Sorting", sort);
             }
-            else if (i >= 1 && Convert.ToInt32(resultList[i]["Point"]) != Convert.ToInt32(resultList[i - 1]["Point"]))
+            else if (i >0 && Convert.ToInt32(resultList[i]["Point"]) != Convert.ToInt32(resultList[i - 1]["Point"]))
             {
+                //筒子点数大的加1
                 sort++;
                 resultList[i].Add("Sorting", sort);
             }
-            else {
+            else if (i >0)
+            {
+                //筒子相同点数，比最大
+                int value1 = 0, value2 = 0;
+                if (Convert.ToInt32(resultList[i]["First"]) >= Convert.ToInt32(resultList[i]["Second"]))
+                {
+                    value1 = Convert.ToInt32(resultList[i]["First"]);
+                }
+                else
+                {
+                    value1 = Convert.ToInt32(resultList[i]["Second"]);
+                }
+                if (Convert.ToInt32(resultList[i - 1]["First"]) >= Convert.ToInt32(resultList[i - 1]["Second"]))
+                {
+                    value2 = Convert.ToInt32(resultList[i - 1]["First"]);
+                }
+                else
+                {
+                    value2 = Convert.ToInt32(resultList[i - 1]["Second"]);
+                }
+                if (value1 > value2)
+                {
+                    sort++;
+                    resultList[i].Add("Sorting", sort);
+                }
+                else {
+                    resultList[i].Add("Sorting", sort);
+                }
+            }
+            else
+            {
                 resultList[i].Add("Sorting", sort);
             }
         }
@@ -208,7 +241,7 @@ public class MaJiang : MonoBehaviour
     }
 
     /// <summary>
-    /// 对子判断
+    /// 是否就对子
     /// </summary>
     /// <returns></returns>
     public static bool IsPairs(Hashtable maJiang)
